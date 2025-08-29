@@ -42,9 +42,18 @@ class DefineQueueCommand extends Command
 
         $exchange = $this->option('exchange');
         if ($exchange) {
-            return;
+            $exchanges = Config::get('simple-mq.exchanges');
+
+            foreach ($exchanges as $name => $exchange) {
+                $arguments = array_filter($exchange['arguments'], fn ($argument) => ! is_null($argument));
+
+                SimpleMQ::connection($exchange['connection'])
+                    ->getDefinition()
+                    ->setArguments($arguments)
+                    ->defineExchange($name, $exchange['type'] ?? 'direct', $exchange['type_configuration'] ?? []);
+            }
         }
 
-        // TODO Define exchange
+        $this->info('Exchanges are defined.');
     }
 }

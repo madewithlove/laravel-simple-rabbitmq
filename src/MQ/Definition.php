@@ -70,12 +70,27 @@ class Definition
 
     /**
      * To define new exchange
-     *
-     * @throws Exception Now there is no implementation
      */
-    public function defineExchange(string $name, $type = 'direct'): ?array
+    public function defineExchange(string $name, $type = 'direct', array $typeConfiguration = []): ?array
     {
-        throw new Exception('The function does not have implementation.');
+        $argTable = $this->getArguments();
+
+        $exchange = $this->channel->exchange_declare(
+            $name,
+            $type,
+            $this->passive,
+            $this->durable,
+            $this->exclusive,
+            $this->auto_delete,
+            $this->nowait,
+            $argTable,
+        );
+
+        if ($type === 'direct') {
+            $this->channel->queue_bind($typeConfiguration['bind_queue'], $name);
+        }
+
+        return $exchange;
     }
 
     /**
