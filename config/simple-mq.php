@@ -87,4 +87,21 @@ return [
         ],
     ],
 
+    'exchanges' => [
+        'direct' => [
+            'connection' => 'default',
+            'type' => 'direct',
+            'type_configuration' => [
+                'queue_bind' => 'simple',
+            ],
+            'arguments' => [],
+        ],
+        'fanout' => [
+            'connection' => 'default',
+            'type' => 'fanout',
+            'type_configuration' => [],
+            'arguments' => [],
+        ],
+    ]
+
 ];
