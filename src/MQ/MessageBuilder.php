@@ -56,9 +56,19 @@ class MessageBuilder
     {
         $this->addHeader('handler', $name);
 
+        return $this->publisher();
+    }
+
+    public function publisher(): Publisher
+    {
         $message = $this->getMessage();
 
         return new Publisher($message, $this->connection, $this->type, $this->to, $this->routingKey);
+    }
+
+    public function publish(): void
+    {
+        $this->publisher()->publish();
     }
 
     /**
