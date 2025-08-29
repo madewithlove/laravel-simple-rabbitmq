@@ -35,7 +35,7 @@ class DefineQueueCommand extends Command
             SimpleMQ::connection($queue['connection'])
                 ->getDefinition()
                 ->setArguments($arguments)
-                ->defineQueue($name);
+                ->defineQueue($name, $queue['exchange_bind'] ?? []);
         }
 
         $this->info('Queues are defined.');

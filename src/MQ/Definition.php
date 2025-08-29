@@ -53,11 +53,11 @@ class Definition
     /**
      * Define a new queue
      */
-    public function defineQueue(string $name): ?array
+    public function defineQueue(string $name, array $exchangeBind): ?array
     {
         $argTable = $this->getArguments();
 
-        return $this->channel->queue_declare(
+        $queue = $this->channel->queue_declare(
             $name,
             $this->passive,
             $this->durable,
@@ -66,6 +66,12 @@ class Definition
             $this->nowait,
             $argTable,
         );
+
+        foreach ($exchangeBind as $exchangeName) {
+            $this->channel->queue_bind($name, $exchangeName);
+        }
+
+        return $queue;
     }
 
     /**
@@ -87,7 +93,7 @@ class Definition
         );
 
         if ($type === 'direct') {
-            $this->channel->queue_bind($typeConfiguration['bind_queue'], $name);
+            $this->channel->queue_bind($typeConfiguration['queue_bind'], $name);
         }
 
         return $exchange;
