@@ -50,7 +50,7 @@ class Message implements Arrayable
     /**
      * Handler name which accepted from AMQPMessage
      */
-    protected string $handler;
+    protected string $eventName;
 
     /**
      * Separator message details from AMQPMessage
@@ -66,7 +66,7 @@ class Message implements Arrayable
 
         $headers = $properties['application_headers']->getNativeData();
 
-        $this->handler = $headers['handler'] ?? '';
+        $this->eventName = $headers['event_name'] ?? '';
         $this->applicationHeaders = $headers;
 
         $this->contentType = $properties['content_type'] ?? 'application/json';
@@ -111,9 +111,9 @@ class Message implements Arrayable
     /**
      * Returns handler name of AMQPMessage
      */
-    public function getHandler(): string
+    public function getEventName(): string
     {
-        return $this->handler;
+        return $this->eventName;
     }
 
     /**

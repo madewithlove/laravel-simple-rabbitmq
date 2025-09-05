@@ -10,28 +10,29 @@ use Usmonaliyev\SimpleRabbit\MQ\Message;
 class ActionMQ
 {
     /**
-     * Stores the registered actions and their handlers.
+     * Stores the registered events and their handlers.
      *
-     * @var array<string, array|callable>
+     * @var array<string, array|callable|class-string>
      */
-    private array $handlers = [];
+    private array $eventHandlers = [];
 
     /**
      * Register a new action
+     * @param array|callable|class-string $callback
      */
-    public function register(string $handler, array|callable $callback): void
+    public function register(string $eventName, array|callable|string $callback): void
     {
-        $this->handlers[$handler] = $callback;
+        $this->eventHandlers[$eventName] = $callback;
     }
 
     /**
      * Getter of actions property
      *
-     * @return array[]|callable[]
+     * @return array<string, array|callable|class-string>
      */
-    public function getHandlers(): array
+    public function getEventHandlers(): array
     {
-        return $this->handlers;
+        return $this->eventHandlers;
     }
 
     /**
@@ -52,7 +53,7 @@ class ActionMQ
         $message = new Message($amqpMessage);
 
         // If there is no handler which match to message, message is deleted
-        if (! isset($this->handlers[$message->getHandler()])) {
+        if (! isset($this->eventHandlers[$message->getEventName()])) {
             $message->ack();
 
             return null;
@@ -64,11 +65,15 @@ class ActionMQ
     /**
      * Dispatcher to execute handler
      */
-    protected function dispatch($message): mixed
+    protected function dispatch(Message $message): mixed
     {
-        $handler = $this->handlers[$message->getHandler()];
+        $handler = $this->eventHandlers[$message->getEventName()];
 
         try {
+            if (is_string($handler)) {
+                $handler = App::make($handler);
+            }
+
             if (is_callable($handler)) {
                 return call_user_func_array($handler, [$message]);
             }
